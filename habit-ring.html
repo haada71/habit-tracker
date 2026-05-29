@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Habit Consistency</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f7f6f2;
+    --surface: #ffffff;
+    --text-primary: #1a1a18;
+    --text-secondary: #6b6b63;
+    --text-muted: #a8a89e;
+    --border: rgba(0,0,0,0.08);
+    --green-strong: #1D9E75;
+    --green-mid: #5DCAA5;
+    --green-light: #E1F5EE;
+    --amber: #EF9F27;
+    --red: #E24B4A;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+
+  .card {
+    background: var(--surface);
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    padding: 2rem 2rem 1.5rem;
+    width: 100%;
+    max-width: 340px;
+    position: relative;
+  }
+
+  .week-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+
+  .ring-area {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .ring-container {
+    position: relative;
+    width: 110px;
+    height: 110px;
+    flex-shrink: 0;
+  }
+
+  .ring-container svg {
+    transform: rotate(-90deg);
+    width: 110px;
+    height: 110px;
+  }
+
+  .ring-bg {
+    fill: none;
+    stroke: #eeeee8;
+    stroke-width: 9;
+  }
+
+  .ring-fill {
+    fill: none;
+    stroke-width: 9;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.4s ease;
+  }
+
+  .ring-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+
+  .ring-pct {
+    font-family: 'DM Mono', monospace;
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1;
+    transition: color 0.4s ease;
+  }
+
+  .ring-sublabel {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 3px;
+  }
+
+  .ring-info {
+    flex: 1;
+  }
+
+  .ring-info h2 {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+
+  .ring-info p {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  .status-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 99px;
+    margin-top: 8px;
+    transition: background 0.4s, color 0.4s;
+  }
+
+  .habit-rows {
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .habit-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0;
+  }
+
+  .habit-name {
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .habit-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--green-strong);
+  }
+
+  .habit-bar-wrap {
+    flex: 1;
+    margin: 0 12px;
+    height: 4px;
+    background: #eeeee8;
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .habit-bar {
+    height: 100%;
+    border-radius: 99px;
+    background: var(--green-strong);
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .habit-pct {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-secondary);
+    width: 30px;
+    text-align: right;
+  }
+
+  .input-section {
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+  }
+
+  .input-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .inputs-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .input-sublabel {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  input[type="number"] {
+    width: 100%;
+    padding: 8px 6px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    text-align: center;
+    outline: none;
+    transition: border-color 0.2s;
+    -moz-appearance: textfield;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+  input[type="number"]:focus {
+    border-color: var(--green-strong);
+  }
+
+  .week-input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .week-input-row input[type="text"] {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .week-input-row input[type="text"]:focus {
+    border-color: var(--green-strong);
+  }
+
+  .update-btn {
+    padding: 8px 16px;
+    background: var(--text-primary);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    white-space: nowrap;
+  }
+
+  .update-btn:hover { opacity: 0.85; }
+  .update-btn:active { transform: scale(0.97); }
+
+  .footer-note {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 0.75rem;
+    font-family: 'DM Mono', monospace;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="week-label" id="weekLabel">Week 22 · 2026</div>
+
+  <div class="ring-area">
+    <div class="ring-container">
+      <svg viewBox="0 0 110 110" role="img" aria-labelledby="ringTitle ringDesc">
+        <title id="ringTitle">Habit consistency ring</title>
+        <desc id="ringDesc">Shows weekly habit completion percentage</desc>
+        <circle class="ring-bg" cx="55" cy="55" r="46"/>
+        <circle class="ring-fill" id="ringFill" cx="55" cy="55" r="46"
+          stroke-dasharray="289.0"
+          stroke-dashoffset="289.0"
+          stroke="#1D9E75"/>
+      </svg>
+      <div class="ring-center">
+        <div class="ring-pct" id="ringPct">0%</div>
+        <div class="ring-sublabel">this week</div>
+      </div>
+    </div>
+    <div class="ring-info">
+      <h2>Habit consistency</h2>
+      <p id="ringDesc2">Enter your completions below to update the ring.</p>
+      <span class="status-badge" id="statusBadge" style="background:#eeeee8; color:#a8a89e;">—</span>
+    </div>
+  </div>
+
+  <div class="habit-rows">
+    <div class="habit-row">
+      <div class="habit-name"><span class="habit-dot"></span>Gym</div>
+      <div class="habit-bar-wrap"><div class="habit-bar" id="gymBar" style="width:0%"></div></div>
+      <div class="habit-pct" id="gymPct">0%</div>
+    </div>
+    <div class="habit-row">
+      <div class="habit-name"><span class="habit-dot" style="background:#5DCAA5;"></span>Read</div>
+      <div class="habit-bar-wrap"><div class="habit-bar" id="readBar" style="width:0%; background:#5DCAA5;"></div></div>
+      <div class="habit-pct" id="readPct">0%</div>
+    </div>
+  </div>
+
+  <div class="input-section">
+    <div class="input-label">Update this week</div>
+
+    <div class="week-input-row">
+      <input type="text" id="weekInput" placeholder="e.g. W22" maxlength="5"/>
+      <button class="update-btn" onclick="updateAll()">Update →</button>
+    </div>
+
+    <div class="inputs-row">
+      <div class="input-group">
+        <input type="number" id="gymDone" min="0" max="7" placeholder="0"/>
+        <div class="input-sublabel">Gym days</div>
+      </div>
+      <div class="input-group">
+        <input type="number" id="readDone" min="0" max="7" placeholder="0"/>
+        <div class="input-sublabel">Read days</div>
+      </div>
+      <div class="input-group">
+        <input type="number" id="totalDays" min="1" max="7" placeholder="7"/>
+        <div class="input-sublabel">Days logged</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-note" id="footerNote">enter completions above and hit update</div>
+</div>
+
+<script>
+  const CIRCUMFERENCE = 2 * Math.PI * 46;
+
+  function getPct(done, total) {
+    if (!total || total === 0) return 0;
+    return Math.round((done / total) * 100);
+  }
+
+  function getColor(pct) {
+    if (pct >= 80) return '#1D9E75';
+    if (pct >= 50) return '#EF9F27';
+    return '#E24B4A';
+  }
+
+  function getBadge(pct) {
+    if (pct === 0) return { text: '—', bg: '#eeeee8', color: '#a8a89e' };
+    if (pct >= 80) return { text: 'Strong week', bg: '#E1F5EE', color: '#0F6E56' };
+    if (pct >= 50) return { text: 'Keep going', bg: '#FAEEDA', color: '#854F0B' };
+    return { text: 'Needs work', bg: '#FCEBEB', color: '#A32D2D' };
+  }
+
+  function setRing(pct) {
+    const offset = CIRCUMFERENCE - (pct / 100) * CIRCUMFERENCE;
+    const fill = document.getElementById('ringFill');
+    const color = getColor(pct);
+    fill.style.strokeDashoffset = offset;
+    fill.style.stroke = color;
+    document.getElementById('ringPct').textContent = pct + '%';
+    document.getElementById('ringPct').style.color = color;
+  }
+
+  function updateAll() {
+    const gymDone = parseInt(document.getElementById('gymDone').value) || 0;
+    const readDone = parseInt(document.getElementById('readDone').value) || 0;
+    const total = parseInt(document.getElementById('totalDays').value) || 7;
+    const weekVal = document.getElementById('weekInput').value.trim() || 'this week';
+
+    const gymPct = getPct(gymDone, total);
+    const readPct = getPct(readDone, total);
+    const overall = Math.round((gymPct + readPct) / 2);
+    const color = getColor(overall);
+    const badge = getBadge(overall);
+
+    setRing(overall);
+
+    document.getElementById('gymBar').style.width = gymPct + '%';
+    document.getElementById('gymBar').style.background = getColor(gymPct);
+    document.getElementById('gymPct').textContent = gymPct + '%';
+
+    document.getElementById('readBar').style.width = readPct + '%';
+    document.getElementById('readBar').style.background = getColor(readPct);
+    document.getElementById('readPct').textContent = readPct + '%';
+
+    const badge2 = document.getElementById('statusBadge');
+    badge2.textContent = badge.text;
+    badge2.style.background = badge.bg;
+    badge2.style.color = badge.color;
+
+    document.getElementById('ringDesc2').textContent =
+      gymDone + ' gym · ' + readDone + ' read · ' + total + ' days logged';
+
+    document.getElementById('weekLabel').textContent =
+      weekVal.toUpperCase() + ' · 2026';
+
+    document.getElementById('footerNote').textContent =
+      'last updated · ' + new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') updateAll();
+  });
+</script>
+</body>
+</html>
