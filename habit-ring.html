@@ -9,27 +9,36 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: transparent;
-    --surface: transparent;
     --text-primary: #1a1a18;
     --text-secondary: #6b6b63;
     --text-muted: #a8a89e;
-    --border: rgba(0,0,0,0.08);
+    --border: rgba(0,0,0,0.1);
+    --ring-track: #eeeee8;
+    --bar-track: #eeeee8;
+    --input-bg: rgba(0,0,0,0.04);
+    --input-border: rgba(0,0,0,0.12);
+    --btn-bg: #1a1a18;
+    --btn-color: #ffffff;
     --green-strong: #1D9E75;
     --green-mid: #5DCAA5;
-    --green-light: #E1F5EE;
     --amber: #EF9F27;
     --red: #E24B4A;
   }
 
+
+
   body {
     font-family: 'DM Sans', sans-serif;
-    background: transparent;
+    background: #ffffff;
     min-height: 100vh;
     display: flex;
     align-items: flex-start;
     justify-content: center;
     padding: 1rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    body { background: #191919; }
   }
 
   .card {
@@ -74,7 +83,7 @@
 
   .ring-bg {
     fill: none;
-    stroke: #eeeee8;
+    stroke: var(--ring-track);
     stroke-width: 9;
   }
 
@@ -107,9 +116,7 @@
     margin-top: 3px;
   }
 
-  .ring-info {
-    flex: 1;
-  }
+  .ring-info { flex: 1; }
 
   .ring-info h2 {
     font-size: 15px;
@@ -154,20 +161,21 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    width: 48px;
   }
 
   .habit-dot {
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: var(--green-strong);
+    flex-shrink: 0;
   }
 
   .habit-bar-wrap {
     flex: 1;
     margin: 0 12px;
     height: 4px;
-    background: #eeeee8;
+    background: var(--bar-track);
     border-radius: 99px;
     overflow: hidden;
   }
@@ -175,8 +183,7 @@
   .habit-bar {
     height: 100%;
     border-radius: 99px;
-    background: var(--green-strong);
-    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s;
   }
 
   .habit-pct {
@@ -223,9 +230,9 @@
   input[type="number"] {
     width: 100%;
     padding: 8px 6px;
-    border: 1px solid rgba(0,0,0,0.12);
+    border: 1px solid var(--input-border);
     border-radius: 8px;
-    background: rgba(0,0,0,0.04);
+    background: var(--input-bg);
     font-family: 'DM Mono', monospace;
     font-size: 14px;
     font-weight: 500;
@@ -239,9 +246,7 @@
   input[type="number"]::-webkit-inner-spin-button,
   input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
 
-  input[type="number"]:focus {
-    border-color: var(--green-strong);
-  }
+  input[type="number"]:focus { border-color: var(--green-strong); }
 
   .week-input-row {
     display: flex;
@@ -253,9 +258,9 @@
   .week-input-row input[type="text"] {
     flex: 1;
     padding: 8px 10px;
-    border: 1px solid rgba(0,0,0,0.12);
+    border: 1px solid var(--input-border);
     border-radius: 8px;
-    background: rgba(0,0,0,0.04);
+    background: var(--input-bg);
     font-family: 'DM Mono', monospace;
     font-size: 12px;
     color: var(--text-primary);
@@ -263,14 +268,12 @@
     transition: border-color 0.2s;
   }
 
-  .week-input-row input[type="text"]:focus {
-    border-color: var(--green-strong);
-  }
+  .week-input-row input[type="text"]:focus { border-color: var(--green-strong); }
 
   .update-btn {
     padding: 8px 16px;
-    background: var(--text-primary);
-    color: #fff;
+    background: var(--btn-bg);
+    color: var(--btn-color);
     border: none;
     border-radius: 8px;
     font-family: 'DM Sans', sans-serif;
@@ -281,7 +284,7 @@
     white-space: nowrap;
   }
 
-  .update-btn:hover { opacity: 0.85; }
+  .update-btn:hover { opacity: 0.8; }
   .update-btn:active { transform: scale(0.97); }
 
   .footer-note {
@@ -317,14 +320,14 @@
     <div class="ring-info">
       <h2>Habit consistency</h2>
       <p id="ringDesc2">Enter your completions below to update the ring.</p>
-      <span class="status-badge" id="statusBadge" style="background:#eeeee8; color:#a8a89e;">—</span>
+      <span class="status-badge" id="statusBadge" style="background:var(--bar-track); color:var(--text-muted);">—</span>
     </div>
   </div>
 
   <div class="habit-rows">
     <div class="habit-row">
-      <div class="habit-name"><span class="habit-dot"></span>Gym</div>
-      <div class="habit-bar-wrap"><div class="habit-bar" id="gymBar" style="width:0%"></div></div>
+      <div class="habit-name"><span class="habit-dot" style="background:#1D9E75;"></span>Gym</div>
+      <div class="habit-bar-wrap"><div class="habit-bar" id="gymBar" style="width:0%; background:#1D9E75;"></div></div>
       <div class="habit-pct" id="gymPct">0%</div>
     </div>
     <div class="habit-row">
@@ -336,12 +339,10 @@
 
   <div class="input-section">
     <div class="input-label">Update this week</div>
-
     <div class="week-input-row">
       <input type="text" id="weekInput" placeholder="e.g. W22" maxlength="5"/>
       <button class="update-btn" onclick="updateAll()">Update →</button>
     </div>
-
     <div class="inputs-row">
       <div class="input-group">
         <input type="number" id="gymDone" min="0" max="7" placeholder="0"/>
@@ -385,11 +386,10 @@
   function setRing(pct) {
     const offset = CIRCUMFERENCE - (pct / 100) * CIRCUMFERENCE;
     const fill = document.getElementById('ringFill');
-    const color = getColor(pct);
     fill.style.strokeDashoffset = offset;
-    fill.style.stroke = color;
+    fill.style.stroke = getColor(pct);
     document.getElementById('ringPct').textContent = pct + '%';
-    document.getElementById('ringPct').style.color = color;
+    document.getElementById('ringPct').style.color = getColor(pct);
   }
 
   function updateAll() {
@@ -401,7 +401,6 @@
     const gymPct = getPct(gymDone, total);
     const readPct = getPct(readDone, total);
     const overall = Math.round((gymPct + readPct) / 2);
-    const color = getColor(overall);
     const badge = getBadge(overall);
 
     setRing(overall);
@@ -414,10 +413,10 @@
     document.getElementById('readBar').style.background = getColor(readPct);
     document.getElementById('readPct').textContent = readPct + '%';
 
-    const badge2 = document.getElementById('statusBadge');
-    badge2.textContent = badge.text;
-    badge2.style.background = badge.bg;
-    badge2.style.color = badge.color;
+    const b = document.getElementById('statusBadge');
+    b.textContent = badge.text;
+    b.style.background = badge.bg;
+    b.style.color = badge.color;
 
     document.getElementById('ringDesc2').textContent =
       gymDone + ' gym · ' + readDone + ' read · ' + total + ' days logged';
